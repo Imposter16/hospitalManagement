@@ -1,6 +1,7 @@
 package com.springboot.project.hospitalManagement.entity;
 
 import java.time.LocalDate;
+import java.util.*;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -25,6 +26,10 @@ public class Patient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "insurance_id", referencedColumnName = "id")
+    private Insurance insurance;
 
     @Column(nullable = false)
     private String name;
@@ -50,4 +55,7 @@ public class Patient {
     @UpdateTimestamp
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
+    
+    @OneToMany(mappedBy = "patient")
+    private List<Appointment> appointments;
 }
