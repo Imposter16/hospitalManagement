@@ -13,3 +13,18 @@ VALUES
 ('Neha Gupta', '2002-11-08', 'neha.gupta@gmail.com', 9871234567, 'Female', 'AB+', NOW()),
 
 ('Arjun Mehta', '1997-07-30', 'arjun.mehta@gmail.com', 9012345678, 'Male', 'O-', NOW());
+
+DELETE FROM doctor;
+
+INSERT INTO doctor (name, specilization, email)
+VALUES 
+
+('Dr. Rajesh Kumar', 'Cardiologist', 'rajesh.kumar@gmail.com'),
+
+('Dr. Anjali Singh', 'Dermatologist', 'anjali.singh@gmail.com'),
+
+('Dr. Vivek Sharma', 'Orthopedic', 'vivek.sharma@gmail.com'),
+
+('Dr. Sneha Verma', 'Pediatrician', 'sneha.verma@gmail.com'),
+
+('Dr. Arjun Gupta', 'Neurologist', 'arjun.gupta@gmail.com');

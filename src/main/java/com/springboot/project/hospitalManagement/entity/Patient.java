@@ -51,11 +51,15 @@ public class Patient {
     @CreationTimestamp
     @Column(name = "created_date", updatable = false)
     private LocalDateTime createdDate;
+    
+    @Column(name = "patient_image")
+    private String patientImage;
 
     @UpdateTimestamp
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
     
-    @OneToMany(mappedBy = "patient")
-    private List<Appointment> appointments;
+    @OneToMany(mappedBy = "patient", fetch = FetchType.EAGER, cascade = {CascadeType.REMOVE}, orphanRemoval = true)
+    @ToString.Exclude
+    private List<Appointment> appointments= new ArrayList<>();
 }
