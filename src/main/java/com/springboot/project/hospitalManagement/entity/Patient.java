@@ -29,6 +29,7 @@ public class Patient {
     
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "insurance_id", referencedColumnName = "id")
+    
     private Insurance insurance;
 
     @Column(nullable = false)
