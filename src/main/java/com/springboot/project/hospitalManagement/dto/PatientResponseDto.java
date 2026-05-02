@@ -10,16 +10,16 @@ import lombok.Data;
 @Builder
 
 public class PatientResponseDto {
-	
-	    private Long id;
-	    private String name;
-	    private String email;
-	    private Long mobileNumber;
-	    private String gender;
-	    private String bloodGroup;
-	    private LocalDate dateOfBirth;
-	    private LocalDateTime createdDate;
 
-	    private String imageUrl;
-	
+	private Long id;
+	private String name;
+	private String email;
+	private Long mobileNumber;
+	private String gender;
+	private String bloodGroup;
+	private LocalDate dateOfBirth;
+	private LocalDateTime createdDate;
+
+	private String imageUrl;
+
 }

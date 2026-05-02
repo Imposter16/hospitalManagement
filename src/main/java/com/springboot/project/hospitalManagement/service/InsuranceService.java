@@ -18,19 +18,19 @@ public class InsuranceService {
 
 	private final InsuranceRepository insuranceRepository;
 	private final PatientRepository patientRepository;
-	
+
 	@Transactional
 	public Patient assignInsuranceToPatient(Insurance insurance, Long patientId) {
 
-	    Patient patient = patientRepository.findById(patientId)
-	        .orElseThrow(() -> new EntityNotFoundException("Patient not found with id: " + patientId));
+		Patient patient = patientRepository.findById(patientId)
+				.orElseThrow(() -> new EntityNotFoundException("Patient not found with id: " + patientId));
 
-	    //  Set both sides (VERY IMPORTANT)
-	    patient.setInsurance(insurance);
-	    insurance.setPatient(patient);
+		// Set both sides (VERY IMPORTANT)
+		patient.setInsurance(insurance);
+		insurance.setPatient(patient);
 
-	    //  Explicit save (best practice)
-	    return patientRepository.save(patient);
+		// Explicit save (best practice)
+		return patientRepository.save(patient);
 	}
-	
+
 }
