@@ -142,4 +142,17 @@ public class PatientService {
 				.build();
 	}
 
+	@Transactional
+	public void deletePatient(Long id) {
+
+		Patient patient = patientRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Patient not found"));
+
+		if (patient.getPatientImage() != null && !patient.getPatientImage().isBlank()) {
+			helper.deleteFile(patient.getPatientImage());
+		}
+
+		patientRepository.delete(patient);
+	}
+
 }

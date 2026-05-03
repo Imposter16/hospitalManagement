@@ -54,4 +54,12 @@ public class PatientController {
         var updatedPatient = patientService.updatePatient(id, request);
         return helper.success(updatedPatient, "Patient updated successfully", 200);
     }
+
+    @PostMapping("/delete/{id}")
+    public ResponseEntity<?> deletePatient(@PathVariable Long id) {
+
+        patientService.deletePatient(id);
+
+        return helper.success(null, "Patient deleted successfully", 200);
+    }
 }
