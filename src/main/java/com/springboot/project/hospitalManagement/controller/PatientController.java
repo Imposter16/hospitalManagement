@@ -1,6 +1,10 @@
 package com.springboot.project.hospitalManagement.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +18,7 @@ import com.springboot.project.hospitalManagement.dto.PatientResponseDto;
 import com.springboot.project.hospitalManagement.service.PatientService;
 import com.springboot.project.hospitalManagement.service.Helper.Helper;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -26,7 +31,21 @@ public class PatientController {
 
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<?> createPatient(
-            @ModelAttribute PatientRequestDto request) {
+            @Valid @ModelAttribute PatientRequestDto request,
+            BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+
+            Map<String, String> errors = new HashMap<>();
+
+            bindingResult.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+
+            return ResponseEntity.badRequest().body(
+                    Map.of(
+                            "status", false,
+                            "message", "Validation failed",
+                            "data", errors));
+        }
 
         var patient = patientService.createPatient(request);
         return helper.success(patient, "Patient created successfully", 201);
@@ -49,7 +68,14 @@ public class PatientController {
     @PostMapping(value = "/update/{id}", consumes = "multipart/form-data")
     public ResponseEntity<?> updatePatient(
             @PathVariable Long id,
-            @ModelAttribute PatientRequestDto request) {
+            @Valid @ModelAttribute PatientRequestDto request,
+            BindingResult bindingResult) {
+
+        // Use the exact same reusable validation method here
+        ResponseEntity<?> validationError = handleValidationErrors(bindingResult);
+        if (validationError != null) {
+            return validationError;
+        }
 
         var updatedPatient = patientService.updatePatient(id, request);
         return helper.success(updatedPatient, "Patient updated successfully", 200);
