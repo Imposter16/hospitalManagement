@@ -71,10 +71,17 @@ public class PatientController {
             @Valid @ModelAttribute PatientRequestDto request,
             BindingResult bindingResult) {
 
-        // Use the exact same reusable validation method here
-        ResponseEntity<?> validationError = handleValidationErrors(bindingResult);
-        if (validationError != null) {
-            return validationError;
+        if (bindingResult.hasErrors()) {
+
+            Map<String, String> errors = new HashMap<>();
+
+            bindingResult.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+
+            return ResponseEntity.badRequest().body(
+                    Map.of(
+                            "status", false,
+                            "message", "Validation failed",
+                            "data", errors));
         }
 
         var updatedPatient = patientService.updatePatient(id, request);
