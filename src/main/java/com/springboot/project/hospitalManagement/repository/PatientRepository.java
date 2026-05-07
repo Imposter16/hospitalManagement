@@ -30,17 +30,21 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
 	List<Patient> findByBornAfter(@Param("dateOfBirth") LocalDate dateOfBirth);
 
 	@Query(value = "SELECT * FROM patient", nativeQuery = true)
-//	List<Patient> findAllPatients();
+	// List<Patient> findAllPatients();
 	Page<Patient> findAllPatients(Pageable pagable);
 
 	@Modifying
 	@Transactional
 	@Query("UPDATE Patient p SET p.name =:name WHERE p.id=:id")
 	int updateNameWithId(@Param("name") String name, @Param("id") Long id);
-	
+
 	// You must use the FULL package name for the DTO inside the query
 	@Query("SELECT new com.springboot.project.hospitalManagement.dto.BloodGroupCountEntity(p.bloodGroup, COUNT(p)) " +
-	       "FROM Patient p GROUP BY p.bloodGroup")
+			"FROM Patient p GROUP BY p.bloodGroup")
 	List<BloodGroupCountEntity> countPatientsByBloodGroup();
+
+	boolean existsByEmail(String email);
+
+	boolean existsByMobileNumber(Long mobileNumber);
 
 }
