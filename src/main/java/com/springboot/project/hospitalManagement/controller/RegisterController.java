@@ -19,7 +19,6 @@ public class RegisterController {
     private final RegisterService registerService;
     private final Helper helper;
 
-    // STEP 1
     @PostMapping("/request")
     public ResponseEntity<?> requestRegister(
             @Valid @ModelAttribute PatientRequestDto request) {
@@ -28,7 +27,6 @@ public class RegisterController {
         return helper.success(null, "OTP sent successfully", 200);
     }
 
-    // STEP 2
     @PostMapping("/verify")
     public ResponseEntity<?> verifyOtp(
             @Valid @ModelAttribute VerifyOtpDto request) {
@@ -37,7 +35,6 @@ public class RegisterController {
         return helper.success(null, "OTP verified successfully", 200);
     }
 
-    // STEP 3
     @PostMapping("/complete")
     public ResponseEntity<?> completeRegistration(
             @Valid @ModelAttribute PatientRequestDto request) {
