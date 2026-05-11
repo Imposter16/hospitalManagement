@@ -14,53 +14,66 @@ import lombok.ToString;
 
 @Entity
 @Table(name = "patient", uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "email", "mobile_number" })
+                @UniqueConstraint(columnNames = { "email", "mobile_number" })
 }, indexes = {
-        @Index(name = "idx_patient_name", columnList = "name")
+                @Index(name = "idx_patient_name", columnList = "name")
 })
 @Getter
 @Setter
 @ToString
 public class Patient {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "insurance_id", referencedColumnName = "id")
-    
-    private Insurance insurance;
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
 
-    @Column(nullable = false)
-    private String name;
+        @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+        @JoinColumn(name = "insurance_id", referencedColumnName = "id")
 
-    @Column(name = "date_of_birth")
-    private LocalDate dateOfBirth;
+        private Insurance insurance;
 
-    private String email;
+        @Column(nullable = false)
+        private String name;
 
-    @Column(name = "mobile_number")
-    private Long mobileNumber;
+        @Column(name = "date_of_birth")
+        private LocalDate dateOfBirth;
 
-    @ToString.Exclude
-    private String gender;
+        private String email;
 
-    @Column(name = "blood_group")
-    private BloodGroup bloodGroup;
+        @Column(name = "mobile_number")
+        private Long mobileNumber;
 
-    @CreationTimestamp
-    @Column(name = "created_date", updatable = false)
-    private LocalDateTime createdDate;
-    
-    @Column(name = "patient_image")
-    private String patientImage;
+        @ToString.Exclude
+        private String gender;
 
-    @UpdateTimestamp
-    @Column(name = "updated_date")
-    private LocalDateTime updatedDate;
-    
-    @OneToMany(mappedBy = "patient", fetch = FetchType.EAGER, cascade = {CascadeType.REMOVE}, orphanRemoval = true)
-    @ToString.Exclude
-    private List<Appointment> appointments= new ArrayList<>();
+        @Column(name = "blood_group")
+        private BloodGroup bloodGroup;
+
+        @CreationTimestamp
+        @Column(name = "created_date", updatable = false)
+        private LocalDateTime createdDate;
+
+        @Column(name = "patient_image")
+        private String patientImage;
+
+        @UpdateTimestamp
+        @Column(name = "updated_date")
+        private LocalDateTime updatedDate;
+
+        @Column(nullable = false)
+        private String password;
+
+        @Column(name = "is_email_verified")
+        private Boolean isEmailVerified = false;
+
+        @Column(name = "is_mobile_verified")
+        private Boolean isMobileVerified = false;
+
+        @Column(name = "is_active")
+        private Boolean isActive = true;
+
+        @OneToMany(mappedBy = "patient", fetch = FetchType.EAGER, cascade = {
+                        CascadeType.REMOVE }, orphanRemoval = true)
+        @ToString.Exclude
+        private List<Appointment> appointments = new ArrayList<>();
 }
