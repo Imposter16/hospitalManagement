@@ -2,6 +2,7 @@ package com.springboot.project.hospitalManagement.service;
 
 import java.time.LocalDateTime;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +14,7 @@ import com.springboot.project.hospitalManagement.entity.OtpVerification;
 import com.springboot.project.hospitalManagement.entity.Patient;
 import com.springboot.project.hospitalManagement.repository.OtpVerificationRepository;
 import com.springboot.project.hospitalManagement.repository.PatientRepository;
+import com.springboot.project.hospitalManagement.service.Helper.Helper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,9 +24,13 @@ public class RegisterService {
 
     private final PatientRepository patientRepository;
     private final OtpVerificationRepository otpRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final Helper helper;
 
     // ================= 1. REQUEST OTP =================
     public void requestRegistration(PatientRequestDto request) {
+
+        // ================= EMAIL & MOBILE CHECK =================
 
         if (patientRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already registered");
@@ -34,6 +40,29 @@ public class RegisterService {
             throw new RuntimeException("Mobile already registered");
         }
 
+        // ================= PASSWORD VALIDATION =================
+
+        if (request.getPassword() == null
+                || request.getPassword().isBlank()) {
+
+            throw new RuntimeException("Password is required");
+        }
+
+        if (request.getConfirmPassword() == null
+                || request.getConfirmPassword().isBlank()) {
+
+            throw new RuntimeException("Confirm password is required");
+        }
+
+        if (!request.getPassword()
+                .equals(request.getConfirmPassword())) {
+
+            throw new RuntimeException(
+                    "Password and confirm password do not match");
+        }
+
+        // ================= GENERATE OTP =================
+
         String emailOtp = generateOtp();
         String mobileOtp = generateOtp();
 
@@ -41,16 +70,22 @@ public class RegisterService {
                 .orElse(new OtpVerification());
 
         otp.setEmail(request.getEmail());
-        otp.setMobileNumber(String.valueOf(request.getMobileNumber()));
+
+        otp.setMobileNumber(
+                String.valueOf(request.getMobileNumber()));
+
         otp.setEmailOtp(emailOtp);
         otp.setMobileOtp(mobileOtp);
+
         otp.setEmailVerified(false);
         otp.setMobileVerified(false);
-        otp.setExpiryTime(LocalDateTime.now().plusMinutes(5));
+
+        otp.setExpiryTime(
+                LocalDateTime.now().plusMinutes(5));
 
         otpRepository.save(otp);
 
-        // 🔥 TEMP (replace later with real service)
+        // TEMP
         System.out.println("Email OTP: " + emailOtp);
         System.out.println("Mobile OTP: " + mobileOtp);
     }
@@ -90,6 +125,25 @@ public class RegisterService {
             throw new RuntimeException("OTP not verified");
         }
 
+        // ================= PASSWORD VALIDATION =================
+
+        if (request.getPassword() == null || request.getPassword().isBlank()) {
+            throw new RuntimeException("Password is required");
+        }
+
+        if (request.getConfirmPassword() == null
+                || request.getConfirmPassword().isBlank()) {
+
+            throw new RuntimeException("Confirm password is required");
+        }
+
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            throw new RuntimeException(
+                    "Password and confirm password do not match");
+        }
+
+        // ================= CREATE PATIENT =================
+
         Patient patient = new Patient();
 
         patient.setName(request.getName());
@@ -97,11 +151,37 @@ public class RegisterService {
         patient.setMobileNumber(request.getMobileNumber());
         patient.setGender(request.getGender());
         patient.setDateOfBirth(request.getDateOfBirth());
-        patient.setBloodGroup(BloodGroup.valueOf(request.getBloodGroup()));
+
+        patient.setBloodGroup(
+                BloodGroup.valueOf(request.getBloodGroup()));
+
+        // ================= PASSWORD HASHING =================
+
+        patient.setPassword(
+                passwordEncoder.encode(request.getPassword()));
+
+        // ================= VERIFICATION FLAGS =================
+
+        patient.setIsEmailVerified(true);
+        patient.setIsMobileVerified(true);
+        patient.setIsActive(true);
+
+        // ================= SAVE IMAGE =================
+
+        if (request.getImage() != null
+                && !request.getImage().isEmpty()) {
+
+            String fileName = helper.uploadFile(request.getImage());
+            patient.setPatientImage(fileName);
+        }
 
         patientRepository.save(patient);
 
+        // ================= DELETE OTP =================
+
         otpRepository.deleteByEmail(request.getEmail());
+
+        // ================= RESPONSE =================
 
         return PatientResponseDto.builder()
                 .id(patient.getId())
@@ -110,10 +190,14 @@ public class RegisterService {
                 .mobileNumber(patient.getMobileNumber())
                 .gender(patient.getGender())
                 .bloodGroup(patient.getBloodGroup().name())
+                .dateOfBirth(patient.getDateOfBirth())
                 .build();
     }
 
+    // ================= GENERATE OTP =================
+
     private String generateOtp() {
-        return String.valueOf((int) (Math.random() * 900000) + 100000);
+        return String.valueOf(
+                (int) (Math.random() * 900000) + 100000);
     }
 }

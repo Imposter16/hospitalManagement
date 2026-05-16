@@ -1,5 +1,6 @@
 package com.springboot.project.hospitalManagement.service;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.springboot.project.hospitalManagement.dto.PatientRequestDto;
@@ -23,6 +24,7 @@ public class PatientService {
 
 	private final PatientRepository patientRepository;
 	private final Helper helper;
+	private final BCryptPasswordEncoder passwordEncoder;
 
 	// @Transactional
 	// public Patient getPatientById(Long id) {

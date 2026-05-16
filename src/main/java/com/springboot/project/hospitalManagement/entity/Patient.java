@@ -60,7 +60,7 @@ public class Patient {
         @Column(name = "updated_date")
         private LocalDateTime updatedDate;
 
-        @Column(nullable = false)
+        @Column
         private String password;
 
         @Column(name = "is_email_verified")
