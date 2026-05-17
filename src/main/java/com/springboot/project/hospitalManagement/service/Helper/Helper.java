@@ -13,7 +13,13 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.springboot.project.hospitalManagement.dto.ApiResponse;
 
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+
+import jakarta.mail.internet.MimeMessage;
+
 import java.nio.file.*;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -256,6 +262,73 @@ public class Helper {
 
             throw new RuntimeException(
                     "Failed to send OTP email");
+        }
+    }
+
+    public void sendResetPasswordMail(
+            String toEmail,
+            String patientName,
+            String resetLink) {
+
+        try {
+
+            MimeMessage message = mailSender.createMimeMessage();
+
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setTo(toEmail);
+
+            helper.setSubject("Reset Your Password");
+
+            String html = """
+                    <div style="
+                        font-family: Arial;
+                        padding:20px;
+                        background:#f4f4f4;">
+
+                        <div style="
+                            max-width:600px;
+                            background:white;
+                            padding:30px;
+                            margin:auto;
+                            border-radius:10px;">
+
+                            <h2 style="color:#2563eb;">
+                                Reset Password
+                            </h2>
+
+                            <p>Hello <b>%s</b>,</p>
+
+                            <p>
+                                Click below button to reset your password.
+                            </p>
+
+                            <a href="%s"
+                               style="
+                                 display:inline-block;
+                                 padding:12px 20px;
+                                 background:#2563eb;
+                                 color:white;
+                                 text-decoration:none;
+                                 border-radius:6px;">
+                                 Reset Password
+                            </a>
+
+                            <p style="margin-top:20px;">
+                                Link valid for 15 minutes.
+                            </p>
+
+                        </div>
+                    </div>
+                    """.formatted(patientName, resetLink);
+
+            helper.setText(html, true);
+
+            mailSender.send(message);
+
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Failed to send reset password email");
         }
     }
 
