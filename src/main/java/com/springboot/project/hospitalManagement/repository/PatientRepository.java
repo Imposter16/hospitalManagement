@@ -47,4 +47,6 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
 
 	boolean existsByMobileNumber(Long mobileNumber);
 
+	Optional<Patient> findByEmail(String email);
+
 }

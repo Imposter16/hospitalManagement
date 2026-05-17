@@ -15,11 +15,18 @@ import com.springboot.project.hospitalManagement.dto.ApiResponse;
 
 import java.nio.file.*;
 import java.util.UUID;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+
+import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
 
 @Component
+@RequiredArgsConstructor
 public class Helper {
 
     private final String uploadDir = "uploads/";
+    private final JavaMailSender mailSender;
 
     public String uploadFile(MultipartFile file) {
 
@@ -57,7 +64,8 @@ public class Helper {
 
     public void deleteFile(String fileName) {
 
-        if (fileName == null || fileName.isEmpty()) return;
+        if (fileName == null || fileName.isEmpty())
+            return;
 
         try {
             Path path = Paths.get(uploadDir, fileName);
@@ -103,7 +111,7 @@ public class Helper {
     public Resource loadFileAsResource(String fileName) {
         return getFile(fileName);
     }
-    
+
     public ResponseEntity<Resource> buildFileResponse(Resource file) {
         try {
             String contentType = Files.probeContentType(file.getFile().toPath());
@@ -117,7 +125,7 @@ public class Helper {
             throw new RuntimeException("Error building file response", e);
         }
     }
-    
+
     public String buildFileUrl(String fileName) {
 
         return ServletUriComponentsBuilder
@@ -126,53 +134,129 @@ public class Helper {
                 .path(fileName)
                 .toUriString();
     }
-    
+
     // =========================
-    //  RESPONSE METHODS 
+    // RESPONSE METHODS
     // =========================
 
     public <T> ResponseEntity<ApiResponse<T>> success(
             T data,
             String message,
-            int status
-    ) {
+            int status) {
         return ResponseEntity.status(status).body(
                 ApiResponse.<T>builder()
                         .status(true)
                         .message(message)
                         .data(data)
-                        .build()
-        );
+                        .build());
     }
 
     public <T> ResponseEntity<ApiResponse<T>> successWithPagination(
             T data,
             String message,
             int status,
-            Object pagination
-    ) {
+            Object pagination) {
         return ResponseEntity.status(status).body(
                 ApiResponse.<T>builder()
                         .status(true)
                         .message(message)
                         .data(data)
                         .pagination(pagination)
-                        .build()
-        );
+                        .build());
     }
 
     public <T> ResponseEntity<ApiResponse<T>> failure(
             String message,
             int status,
-            T data
-    ) {
+            T data) {
         return ResponseEntity.status(status).body(
                 ApiResponse.<T>builder()
                         .status(false)
                         .message(message)
                         .data(data)
-                        .build()
-        );
+                        .build());
     }
-    
+
+    public void sendOtpMail(
+            String toEmail,
+            String name,
+            String otp) {
+
+        try {
+
+            MimeMessage message = mailSender.createMimeMessage();
+
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setTo(toEmail);
+
+            helper.setSubject(
+                    "Hospital Management - OTP Verification");
+
+            String html = """
+                    <div style="
+                        font-family: Arial;
+                        padding: 20px;
+                        background: #f4f4f4;
+                    ">
+
+                        <div style="
+                            max-width: 600px;
+                            margin: auto;
+                            background: white;
+                            padding: 30px;
+                            border-radius: 10px;
+                        ">
+
+                            <h2 style="color:#2c3e50;">
+                                Hospital Management System
+                            </h2>
+
+                            <p>Hello %s,</p>
+
+                            <p>
+                                Your OTP verification code is:
+                            </p>
+
+                            <div style="
+                                font-size: 32px;
+                                font-weight: bold;
+                                color: #27ae60;
+                                margin: 20px 0;
+                            ">
+                                %s
+                            </div>
+
+                            <p>
+                                This OTP is valid for 5 minutes.
+                            </p>
+
+                            <p>
+                                If you did not request this,
+                                please ignore this email.
+                            </p>
+
+                            <br>
+
+                            <p>
+                                Regards,<br>
+                                Hospital Management Team
+                            </p>
+
+                        </div>
+
+                    </div>
+                    """.formatted(name, otp);
+
+            helper.setText(html, true);
+
+            mailSender.send(message);
+
+        } catch (Exception e) {
+
+            throw new RuntimeException(
+                    "Failed to send OTP email");
+        }
+    }
+
 }

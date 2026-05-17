@@ -86,7 +86,11 @@ public class RegisterService {
         otpRepository.save(otp);
 
         // TEMP
-        System.out.println("Email OTP: " + emailOtp);
+        // System.out.println("Email OTP: " + emailOtp);
+        helper.sendOtpMail(
+                request.getEmail(),
+                request.getName(),
+                emailOtp);
         System.out.println("Mobile OTP: " + mobileOtp);
     }
 
